@@ -1,0 +1,12 @@
+[Unit]
+Description=Turkiye Go
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/home/bots/own/TurkishImprover/venv/bin/python /home/bots/own/TurkishImprover/bot.py
+WorkingDirectory=/home/bots/own/TurkishImprover
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
