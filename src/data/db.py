@@ -37,6 +37,12 @@ class DBCommands:
         words = await cursor.fetchall()
         return words
 
+    async def check_if_word_exists(self, word: str) -> bool:
+        cursor = await self.connection.execute("SELECT * FROM word WHERE word = ?",
+                                               (word, ))
+        words = await cursor.fetchall()
+        return bool(len(words))
+
     async def increase_weight(self, word: str):
         await self.connection.execute("UPDATE word SET weight = weight + 5 "
                                       "WHERE word = ? OR translation = ?", (word, word))
@@ -47,19 +53,3 @@ class DBCommands:
         await self.connection.execute("UPDATE word SET weight = MAX(weight - 1, 1) "
                                       "WHERE word = ? OR translation = ?", (word, word))
         await self.connection.commit()
-
-
-async def main():
-    vocab = DBCommands('./words.db')
-    await vocab.connect()
-    await vocab.create_table()
-    while True:
-        random_word = await vocab.get_random_word()
-        print(random_word)
-        break
-
-    await vocab.close()
-
-
-if __name__ == '__main__':
-    asyncio.run(main())

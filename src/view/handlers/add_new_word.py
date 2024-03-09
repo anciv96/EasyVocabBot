@@ -17,10 +17,19 @@ async def command_add_new_word_handler(message: Message, state: FSMContext) -> N
 async def process_add_new_word_handler(message: Message, state: FSMContext) -> None:
     """Got data to add, so adding process"""
     await state.set_state(AddNewWord.word)
-    await _check_word_correctness(message.text)
+    try:
+        await _check_word_correctness(message.text)
+    except AssertionError as error:
+        await message.answer(f'Ошибка формата сообщения: {error}')
+
     word, translate = await _convert_text_to_object(message.text)
-    await db.add_word(word, translate)
-    await message.answer(f'Kelime tabanına eklendi ☑️ : <b>{word}</b>')
+
+    if not (await db.check_if_word_exists(word)):
+        await db.add_word(word, translate)
+        await message.answer(f'Kelime tabanına eklendi ☑️ : <b>{word}</b>')
+    else:
+        await message.answer(f'{word} zaten tabanda var')
+
     await state.clear()
 
 
